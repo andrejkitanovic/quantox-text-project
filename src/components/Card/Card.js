@@ -4,7 +4,7 @@ import "./Card.scss";
 // import { Link } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 
-import visa from "../../assets/Card/0.png";
+import visa from "../../assets/Card/visa.png";
 import discover from "../../assets/Card/discover.png";
 import master from "../../assets/Card/master.png";
 
