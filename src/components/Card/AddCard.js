@@ -11,4 +11,4 @@ const AddCard = (props) => {
   );
 };
 
-export default AddCard;
+export default React.memo(AddCard);

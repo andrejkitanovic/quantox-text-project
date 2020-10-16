@@ -47,6 +47,7 @@
       font-size: 27px;
       margin-right: 10px;
       font-weight: 600;
+      width: 300px;
     }
   }
 
@@ -90,7 +91,26 @@
     }
   }
 
-  &:hover {
-    transform: scale(1.1);
+
+  &.add,&.view{
+    &:hover {
+      transform: scale(1.1);
+    }
   }
+
+  &.edit{
+    cursor: auto;
+
+    .numbers-flex,  .name-year-flex {
+      p{
+        cursor: pointer;
+        transition:.2s;
+
+        &:hover{
+          transform: scale(1.15);
+        }
+      }
+    }
+  }
+  
 }

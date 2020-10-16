@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
-import "./AddCard.scss";
 
+import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import Card from "../../../components/Card/Card";
 
+import Card from "../../../components/Card/Card";
 import InputForm from "../../../components/InputTable/InputTable";
+
+import {addCard} from '../../../store/actions/cards'
 
 //Izvlacimo prva dva broja trenutne godine
 let yearFirstTwoNumbers = String(new Date().getFullYear());
 yearFirstTwoNumbers = yearFirstTwoNumbers.slice(0, 2);
 
-const AddCard = (props) => {
+const AddEditCard = (props) => {
   let { id } = useParams();
 
   const [card, setCard] = useState({
@@ -20,13 +22,25 @@ const AddCard = (props) => {
     numbers: ["", "", "", ""],
     date: "",
   });
+  const [focus,setFocus] = useState();
 
   useEffect(() => {
-      if(id){
-          
-      }
-    setCard((p) => ({ ...p, id: id }));
-  }, [id]);
+    if (props.cards && props.cards.length > 0 && id) {
+      const card = props.cards.find((card) => card.id === parseInt(id));
+      setCard({
+        id: card.id,
+        name: card.name,
+        numbers: card.numbers,
+        date: card.month + "/" + (card.year % 100),
+      });
+    }
+  }, [id, props.cards]);
+  
+
+  const setFocusHandler = (row,column) => {
+    console.log(row,column)
+    setFocus(row + "" + column)
+  }
 
   //Formatiramo datum
   const formatedDate = {
@@ -98,47 +112,61 @@ const AddCard = (props) => {
         formatedDate.year <= new Date().getFullYear() &&
         formatedDate.month <= new Date().getMonth()
       ) {
-          console.log("Vasa kartica je istekla")
+        console.log("Vasa kartica je istekla");
         return;
       }
- 
     } else {
-        console.log("Niste uneli validan datum")
+      console.log("Niste uneli validan datum");
       return;
     }
 
     //Proveravamo da li ima neko uneseno polje za broj kreditne kartice cija je duzina 4
     let numberLengthCheck = card.numbers.some((number) => number.length < 4);
     if (numberLengthCheck) {
-        console.log("Niste uneli broj kartice")
+      console.log("Niste uneli broj kartice");
       return;
     }
 
     //Proveravamo da li je korisnik uneo ime
     if (!card.name) {
-        console.log("Niste uneli ime")
+      console.log("Niste uneli ime");
       return;
     }
 
-    if(!card.id){
-        const formatedCard = {
-            id:new Date().getTime(),
-            name:card.name,
-            number:card.numbers,
-            month:formatedDate.month,
-            year:formatedDate.year
-        }
-    
-        localStorage.setItem("cards",JSON.stringify(formatedCard))
-    }
 
-    
+    let updatedCards = props.cards;
+    const formatedCard = {
+      id: new Date().getTime(),
+      name: card.name,
+      numbers: card.numbers,
+      month: formatedDate.month,
+      year: formatedDate.year,
+    };
+    if (!card.id) {
+          //Dodajemo novu karticu
+      if(updatedCards){
+        updatedCards.push(formatedCard)
+      }else updatedCards = [formatedCard]
+
+      localStorage.setItem("cards", JSON.stringify(updatedCards));
+      props.addCard(formatedCard)
+    }else {
+      //Editujemo vec postojecu karticu
+      let cardIndex = props.cards.findIndex(propsCard => propsCard.id === card.id)
+      updatedCards[cardIndex] = formatedCard
+
+      localStorage.setItem("cards", JSON.stringify(updatedCards));
+    }
+    props.history.push("/cards")
   };
 
   return (
-    <div className="AddCard-view">
+    <div className="Cards-view">
+      <h1>{props.location.pathname === "/cards/add" ? "Add card" : "Edit card"}</h1>
       <Card
         card={{ ...card, month: formatedDate.month, year: formatedDate.year }}
+        edit
+        setFocus={setFocusHandler}
       />
       <InputForm
         {...card}
@@ -146,9 +174,16 @@ const AddCard = (props) => {
         updateName={changeNameHandler}
         updateDate={changeDateHandler}
         submit={submitCard}
+        focus={focus}
       />
     </div>
   );
 };
 
-export default AddCard;
+const mapStateToProps = (state) => {
+  return {
+    cards: state,
+  };
+};
+
+export default connect(mapStateToProps, {addCard})(AddEditCard);

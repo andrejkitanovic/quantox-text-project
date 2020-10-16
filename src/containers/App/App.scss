@@ -1,7 +1,18 @@
 .App{
   height: 100%;
 
+  h1{
+    padding:50px 0;
+  }
+
   input:focus{
     outline: none;
+  }
+
+  .Cards-view{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 }

@@ -1,28 +1,32 @@
 import React from "react";
-import "./Cards.scss";
+
+import {connect} from 'react-redux'
 
 import AddCard from "../../../components/Card/AddCard";
 import Card from "../../../components/Card/Card";
 
-const cardDummy = {
-  id: 1,
-  type:0, //Check if its visa - mastercard - discover
-  numbers: ["4234", "4567", "8321", "0402"],
-  name: "Andrej Kitanovic",
-  year: 2020,
-  month: 9
-};
-
 const Cards = (props) => {
+
+  let cards = null
+
+  if(props.cards){
+    cards = props.cards.map(card => <Card card={card} key={card.id}/>)
+  }
+
   return (
     <div className="Cards-view">
       <h1>My Cards</h1>
+      {cards}
 
-      <Card card={cardDummy} />
-      
       <AddCard />
     </div>
   );
 };
 
-export default Cards;
+const mapStateToProps = state => {
+  return {
+    cards:state
+  }
+}
+
+export default connect(mapStateToProps)(Cards);
